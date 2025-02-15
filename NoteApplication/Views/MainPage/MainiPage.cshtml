@@ -1,0 +1,120 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model List<NoteApplication.Models.NoteModel>
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Açılır Kapanır Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .form-container {
+            display: none;
+            width: 300px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            background: #f9f9f9;
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-container input {
+            width: 75%;
+            margin: 5px 0;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <button id="toggleForm">Not ekle</button>
+
+    <div class="form-container" id="form">
+        <form asp-controller="MainPage" asp-action="GoAddNote" method="post">
+        <h3>Not Ekle</h3>
+        <input type="text" name="Title" placeholder="Başlık">
+        <textarea name="NoteContent" placeholder="Not içeriğiniz"></textarea>
+        <button type="submit" name="submitButton">Ekle</button>
+        </form>
+    </div>
+
+    <h1><strong>Notlarım</strong></h1>
+    <div>
+        <ul>
+            @foreach(var note in Model){
+                <li><button type="button" data-content="@note.NoteContent" data-id="@note.Id" class="noteButton" >@note.Title</button></li>
+            }
+        </ul>
+    </div>
+    
+    <form id="NoteContainer" asp-controller="MainPage" asp-action="GoUpdateNote" method="post">
+
+    </form>
+    
+    <script>
+        var ButtonList = document.querySelectorAll(".noteButton")
+
+        for(let i=0;i<ButtonList.length;i++){
+            ButtonList[i].addEventListener("click",
+            function(){
+                
+                let content = this.getAttribute("data-content");
+
+                let existingNote = NoteContainer.querySelector(".note");
+
+                // controlling the existing note
+                if (existingNote) {
+                    existingNote.remove();
+                    document.getElementById("NoteContainer").style.display = "none";
+                    return;
+                }
+                else{
+
+                // creating hidden input
+                let NoteId = this.getAttribute("data-id");
+                let ButtonOrder = document.createElement("input");
+                ButtonOrder.type= "hidden";
+                ButtonOrder.name = "NoteId";
+                ButtonOrder.value = NoteId;
+                document.getElementById("NoteContainer").appendChild(ButtonOrder);
+
+                // creating textarea
+                let noteDiv = document.createElement("textarea");
+                noteDiv.className = "note";
+                noteDiv.name = "NoteContent";
+                noteDiv.innerText = content;
+                document.getElementById("NoteContainer").appendChild(noteDiv);
+                
+                // creating submit button
+                let SubButton = document.createElement("button");
+                SubButton.type = "submit";
+                SubButton.innerText = "Kaydet";
+                document.getElementById("NoteContainer").appendChild(SubButton);
+
+
+                // Not kutusunu görünür yap
+                document.getElementById("NoteContainer").style.display = "block";
+                }
+            })
+        }
+        
+        
+
+
+        
+        document.getElementById("toggleForm").addEventListener("click", function() {
+            var form = document.getElementById("form");
+            if (form.style.display === "none" || form.style.display === "") {
+                form.style.display = "block";
+            } else {
+                form.style.display = "none";
+            }
+        });
+    </script>
+
+</body>
+</html>
