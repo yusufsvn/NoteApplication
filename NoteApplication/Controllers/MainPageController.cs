@@ -14,7 +14,6 @@ namespace NoteApplication.Controllers
         public IActionResult MainiPage()
         {
             List<NoteModel> notemodels = _loginController.GetNotesAsync();
-            //ViewBag["notelist"] = model;
             return View(notemodels);
         }
 
@@ -25,13 +24,16 @@ namespace NoteApplication.Controllers
             return RedirectToAction("Index", "Home");
         }
         [HttpPost]
-        public IActionResult GoUpdateNote(string NoteId,string NoteContent,string Title)
+        public async Task<IActionResult> GoUpdateNoteAsync(string NoteId,string NoteContent,string Title)
         {
             int NoteIdNumber = int.Parse(NoteId);
-            //var updatedResponse = 
-            _loginController.UpdateNote(NoteIdNumber, NoteContent,Title);
-
-            return Ok();
+            bool check  = await _loginController.UpdateNoteAsync(NoteIdNumber, NoteContent,Title);
+            if (check)
+            {
+                return RedirectToAction("MainiPage","MainPage");
+            }
+            return Content("hata oluştu");
+            
         }
 
 
@@ -42,7 +44,7 @@ namespace NoteApplication.Controllers
             bool AddingControl = await _loginController.AddNoteAsync(Title, NoteContent);
             if (AddingControl)
             {
-                return Content("Not Başarıyla eklendi");
+                return RedirectToAction("MainiPage","MainPage");
             }
             return Content("bir hata oluştu");
         }
@@ -55,11 +57,11 @@ namespace NoteApplication.Controllers
             bool DelState = await _loginController.DelNoteAsync(newId);
             if (DelState)
             {
-                return Ok(new { message = "Not başarıyla silindi" });
+                return Json(new { redirectUrl = "/MainPage/MainiPage" }); //RedirectToAction("MainiPage", "MainPage");
             }
             else
             {
-                return NotFound(new { message = "Not bulunamadı" });
+                return Content("bir hata oluştu");
             }
         }
     }

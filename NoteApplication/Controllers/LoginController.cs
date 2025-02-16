@@ -81,7 +81,7 @@ namespace NoteApplication.Controllers
         }
         
         [NonAction]
-        public void UpdateNote(int NoteId, string NoteContent,string Title)
+        public async Task<bool> UpdateNoteAsync(int NoteId, string NoteContent,string Title)
         {
             string? UserId = _httpContextAccessor.HttpContext?.Session.GetString("UserId");
             /*
@@ -89,17 +89,19 @@ namespace NoteApplication.Controllers
             Debug.WriteLine(NoteId);
             Debug.WriteLine(NoteContent);
             */
-            NoteModel? obj = (from note in context.Notes where note.Id == NoteId && note.UserId == UserId select note).FirstOrDefault();
+            NoteModel? obj = await (from note in context.Notes where note.Id == NoteId && note.UserId == UserId select note).FirstOrDefaultAsync();
             if(obj != null)
             {
                 var dt = DateTime.Now.ToString();
                 obj.NoteContent = NoteContent;
                 obj.LastChanging = dt;
                 obj.Title = Title;
-                context.SaveChanges();
+                await context.SaveChangesAsync();
+                return true;
             }
             else
             {
+                return false;
                 Debug.WriteLine("obj null");
             }
         }

@@ -60,11 +60,15 @@
     <script>
         function DelRequest(NoteId){
             fetch(`https://localhost:7115/MainPage/GoDelNote?id=${NoteId}`,{
-                method:"DELETE" 
+                method:"DELETE"
             })
-            .then(response => response.text())
-            .then(data => console.log("Başarı:", data))
-            .catch(error => console.error("Hata:", error));
+            .then(response => response.json())
+            .then(data => {
+            if (data.redirectUrl) {
+                window.location.href = data.redirectUrl; 
+            }
+        })
+        .catch(error => console.error("Hata:", error));
         }
         var ButtonList = document.querySelectorAll(".noteButton")
 
