@@ -46,7 +46,7 @@
     <div>
         <ul>
             @foreach(var note in Model){
-                <li><button type="button" data-content="@note.NoteContent" data-id="@note.Id" class="noteButton" >@note.Title</button></li>
+                <li><button type="button" data-content="@note.NoteContent" data-id="@note.Id" data-title="@note.Title" class="noteButton" >@note.Title</button></li>
             }
         </ul>
     </div>
@@ -56,6 +56,14 @@
     </form>
     
     <script>
+        function DelRequest(NoteId){
+            fetch(`https://localhost:7115/MainPage/GoDelNote?id=${NoteId}`,{
+                method:"DELETE" 
+            })
+            .then(response => response.text())
+            .then(data => console.log("Başarı:", data))
+            .catch(error => console.error("Hata:", error));
+        }
         var ButtonList = document.querySelectorAll(".noteButton")
 
         for(let i=0;i<ButtonList.length;i++){
@@ -64,12 +72,14 @@
                 
                 let content = this.getAttribute("data-content");
 
-                let existingNote = NoteContainer.querySelector(".note");
+                let NoteContainer = document.getElementById("NoteContainer");
+
+                NoteContainer.innerHTML = "";
 
                 // controlling the existing note
-                if (existingNote) {
-                    existingNote.remove();
-                    document.getElementById("NoteContainer").style.display = "none";
+                if (NoteContainer.style.display === "block" && NoteContainer.getAttribute("data-active-id") === this.getAttribute("data-id")) {
+                    NoteContainer.style.display = "none";
+                    NoteContainer.removeAttribute("data-active-id"); // Aktif butonu sıfırla
                     return;
                 }
                 else{
@@ -82,18 +92,41 @@
                 ButtonOrder.value = NoteId;
                 document.getElementById("NoteContainer").appendChild(ButtonOrder);
 
+                // create Title input
+                let NoteTitle = this.getAttribute("data-title");
+                let TitleObj = document.createElement("input");
+                TitleObj.type = "text";
+                TitleObj.name  ="Title";
+                TitleObj.value = NoteTitle;
+                document.getElementById("NoteContainer").appendChild(TitleObj);
+
+                let br1 = document.createElement("br");
+                document.getElementById("NoteContainer").appendChild(br1);
+
                 // creating textarea
                 let noteDiv = document.createElement("textarea");
                 noteDiv.className = "note";
                 noteDiv.name = "NoteContent";
                 noteDiv.innerText = content;
                 document.getElementById("NoteContainer").appendChild(noteDiv);
+
+                let br2 = document.createElement("br");
+                document.getElementById("NoteContainer").appendChild(br2);
                 
                 // creating submit button
                 let SubButton = document.createElement("button");
                 SubButton.type = "submit";
                 SubButton.innerText = "Kaydet";
                 document.getElementById("NoteContainer").appendChild(SubButton);
+
+                // del button
+                let delBut = document.createElement("button");
+                delBut.type = "button";
+                delBut.innerText = "Sil";
+                delBut.onclick = function(){
+                    DelRequest(NoteId);
+                }
+                document.getElementById("NoteContainer").appendChild(delBut);
 
 
                 // Not kutusunu görünür yap

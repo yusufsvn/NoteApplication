@@ -20,6 +20,7 @@ namespace NoteApplication.Controllers
             int i = 0;
             while (i < Users.Count)
             {
+               
                if (Users[i].Id.Equals(email, StringComparison.Ordinal))
                {
 
@@ -42,7 +43,7 @@ namespace NoteApplication.Controllers
                 await context.SaveChangesAsync();  
             }
         }
-
+        
         [NonAction]
         public async Task<bool> AddNoteAsync(string Title, string Content)
         {
@@ -80,7 +81,7 @@ namespace NoteApplication.Controllers
         }
         
         [NonAction]
-        public void UpdateNote(int NoteId, string NoteContent)
+        public void UpdateNote(int NoteId, string NoteContent,string Title)
         {
             string? UserId = _httpContextAccessor.HttpContext?.Session.GetString("UserId");
             /*
@@ -94,14 +95,29 @@ namespace NoteApplication.Controllers
                 var dt = DateTime.Now.ToString();
                 obj.NoteContent = NoteContent;
                 obj.LastChanging = dt;
+                obj.Title = Title;
+                context.SaveChanges();
             }
             else
             {
                 Debug.WriteLine("obj null");
             }
-            //user id ve note  ıd sağlayan Not veya notlar getirilecek
         }
-        
+
+        [NonAction]
+        public async Task<bool> DelNoteAsync(int id)
+        {
+            Debug.WriteLine(id);
+            var note = await context.Notes.FirstOrDefaultAsync(n => n.Id == id);
+            if(note != null)
+            {
+                context.Remove(note);
+                await context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+            
+        }
 
     }
 }
