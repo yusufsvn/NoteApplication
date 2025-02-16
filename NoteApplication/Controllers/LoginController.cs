@@ -20,13 +20,13 @@ namespace NoteApplication.Controllers
             int i = 0;
             while (i < Users.Count)
             {
-               
-               if (Users[i].Id.Equals(email, StringComparison.Ordinal))
-               {
+
+                if (Users[i].Id.Equals(email, StringComparison.Ordinal) && Users[i].Password.Equals(password, StringComparison.Ordinal))
+                {
 
                     _httpContextAccessor.HttpContext?.Session.SetString("UserId", Users[i].Id);
                     return true;
-               }
+                }
                 i++;
             }
             return false;

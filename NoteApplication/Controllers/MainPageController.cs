@@ -1,14 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using NoteApplication.Models;
 using System.Diagnostics;
 
 namespace NoteApplication.Controllers
 {
-    public class MainPageController(LoginController login) : Controller
+    public class MainPageController(LoginController login, IHttpContextAccessor httpContextAccessor) : Controller
     {
 
         private readonly LoginController _loginController = login;
-
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
         [HttpGet]
         public IActionResult MainiPage()
         {
@@ -17,6 +18,12 @@ namespace NoteApplication.Controllers
             return View(notemodels);
         }
 
+        [HttpGet]
+        public IActionResult Logout()
+        {
+            _httpContextAccessor.HttpContext?.Session.Clear();
+            return RedirectToAction("Index", "Home");
+        }
         [HttpPost]
         public IActionResult GoUpdateNote(string NoteId,string NoteContent,string Title)
         {
